@@ -17,4 +17,3 @@ const initAPIRoutes = (app) => {
 }
 
 export default initAPIRoutes;
-// http://34.29.205.142:8080/api/create-user

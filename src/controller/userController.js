@@ -67,7 +67,7 @@ let createUser = async (req, res) => {
 
             }
         } else {
-            let checkNumber = await (await connection).execute("SELECT * FROM users WHERE telephone = ?", [username]);
+            let checkNumber = await (await connection).execute("SELECT * FROM users WHERE user_telephone = ?", [username]);
             if (checkNumber[0].length > 0) {
                 return res.status(400).json({
                     message: "Telephone already exists",
@@ -76,7 +76,7 @@ let createUser = async (req, res) => {
             }
         }
         await (await connection).execute(
-            "INSERT INTO users (username, pwd, full_name, telephone, created_at, modified_at, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (user_username, user_password, user_full_name, user_telephone, created_at, modified_at, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [username, encryptPassword, req.query.user_full_name, req.query.user_telephone, created_at, created_at, 3]
         );
         return res.status(200).json({
@@ -87,7 +87,8 @@ let createUser = async (req, res) => {
         console.log(error);
         return res.status(500).json({
             message: "Error",
-            code: "5"
+            code: "5",
+            parameter:"user_username,"
         });
     }
 
@@ -96,11 +97,11 @@ let createUser = async (req, res) => {
 
 
 let findUser = async (req, res) => {
-    let username = req.query.username;
-    let password = req.query.pwd;
+    let username = req.query.user_username||req.body.user_username;
+    let password = req.query.user_password||req.body.user_password;
     try {
         const [rows, fields] = await (await connection).execute(
-            "SELECT * FROM users WHERE username = ? OR telephone = ?",
+            "SELECT * FROM users WHERE user_username = ? OR user_telephone = ?",
             [username, username]
         );
         if (rows.length === 0) {
@@ -109,7 +110,7 @@ let findUser = async (req, res) => {
             });
         }
         const user = rows[0];
-        const validPassword = await bcrypt.compare(password, user.password);
+        const validPassword = await bcrypt.compare(password, user.user_password);
         if (!validPassword) {
             return res.status(401).json({
                 message: "Invalid password",
@@ -122,7 +123,8 @@ let findUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: "Error",
-            error: error.message
+            error: error.message,
+            parameter:"user_username: username ; user_password: password"
         });
     }
 };
