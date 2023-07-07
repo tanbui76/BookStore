@@ -75,9 +75,11 @@ let createUser = async (req, res) => {
                 });
             }
         }
+        let user_full_name = req.query.user_full_name|| req.body.user_full_name;
+        let user_telephone = req.query.user_telephone||req.body.user_telephone;
         await (await connection).execute(
             "INSERT INTO users (user_username, user_password, user_full_name, user_telephone, created_at, modified_at, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [username, encryptPassword, req.query.user_full_name, req.query.user_telephone, created_at, created_at, 3]
+            [username, encryptPassword, user_full_name, user_telephone, created_at, created_at, 3]
         );
         return res.status(200).json({
             message: "Create user",
@@ -88,7 +90,8 @@ let createUser = async (req, res) => {
         return res.status(500).json({
             message: "Error",
             code: "5",
-            parameter:"user_username,"
+            backend_error:error.message,
+            parameter:"user_username,user_password,user_full_name,user_telephone"
         });
     }
 
