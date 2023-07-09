@@ -75,8 +75,8 @@ let createUser = async (req, res) => {
                 });
             }
         }
-        let user_full_name = req.query.user_full_name|| req.body.user_full_name;
-        let user_telephone = req.query.user_telephone||req.body.user_telephone;
+        let user_full_name = req.query.user_full_name || req.body.user_full_name;
+        let user_telephone = req.query.user_telephone || req.body.user_telephone;
         await (await connection).execute(
             "INSERT INTO users (user_username, user_password, user_full_name, user_telephone, created_at, modified_at, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [username, encryptPassword, user_full_name, user_telephone, created_at, created_at, 3]
@@ -90,9 +90,12 @@ let createUser = async (req, res) => {
         return res.status(500).json({
             message: "Error",
             code: "5",
-            backend_error:error.message,
-            parameter:"user_username,user_password,user_full_name,user_telephone"
+            backend_error: error.message,
+            parameter: "user_username,user_password,user_full_name,user_telephone"
         });
+    } finally {
+        (await connection).end();
+
     }
 
 
@@ -100,8 +103,8 @@ let createUser = async (req, res) => {
 
 
 let findUser = async (req, res) => {
-    let username = req.query.user_username||req.body.user_username;
-    let password = req.query.user_password||req.body.user_password;
+    let username = req.query.user_username || req.body.user_username;
+    let password = req.query.user_password || req.body.user_password;
     try {
         const [rows, fields] = await (await connection).execute(
             "SELECT * FROM users WHERE user_username = ? OR user_telephone = ?",
@@ -128,7 +131,7 @@ let findUser = async (req, res) => {
         return res.status(500).json({
             message: "Error",
             error: error.message,
-            parameter:"user_username: username ; user_password: password"
+            parameter: "user_username: username ; user_password: password"
         });
     }
 };
