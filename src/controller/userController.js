@@ -94,7 +94,7 @@ let createUser = async (req, res) => {
             parameter: "user_username,user_password,user_full_name,user_telephone"
         });
     } finally {
-        (await connection).end();
+        (await connection).release();
 
     }
 
