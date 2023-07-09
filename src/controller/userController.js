@@ -124,6 +124,7 @@ let findUser = async (req, res) => {
             data: user
         });
     } catch (error) {
+        console.log(error.message);
         return res.status(500).json({
             message: "Error",
             error: error.message,
