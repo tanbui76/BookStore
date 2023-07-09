@@ -20,9 +20,9 @@ let getAllUsers = async (req, res) => {
     }
 };
 
-async function checkExist(username) {
+async function checkExist(username, connect) {
     console.log(username);
-    let check = await (await connection).execute("SELECT * FROM users WHERE username = ?", [username]);
+    let check = await connect.execute("SELECT * FROM users WHERE username = ?", [username]);
     if (check[0].length > 0) {
         return false;
     } else {
@@ -41,9 +41,10 @@ let createUser = async (req, res) => {
         let encryptPassword = await bcrypt.hash(password, salt);
 
         let username = await req.body.user_username || req.query.user_username;
+        let connect = await (await connection);
 
         if (username.includes("@")) {
-            if (await checkExist(username) === false) {
+            if (await checkExist(username, connect) === false) {
                 return res.status(400).json({
                     message: "Email already exists",
                 });
@@ -67,7 +68,7 @@ let createUser = async (req, res) => {
 
             }
         } else {
-            let checkNumber = await (await connection).execute("SELECT * FROM users WHERE user_telephone = ?", [username]);
+            let checkNumber = await connect.execute("SELECT * FROM users WHERE user_telephone = ?", [username]);
             if (checkNumber[0].length > 0) {
                 return res.status(400).json({
                     message: "Telephone already exists",
@@ -77,7 +78,7 @@ let createUser = async (req, res) => {
         }
         let user_full_name = req.query.user_full_name || req.body.user_full_name;
         let user_telephone = req.query.user_telephone || req.body.user_telephone;
-        await (await connection).execute(
+        await connect.execute(
             "INSERT INTO users (user_username, user_password, user_full_name, user_telephone, created_at, modified_at, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [username, encryptPassword, user_full_name, user_telephone, created_at, created_at, 3]
         );
@@ -94,7 +95,7 @@ let createUser = async (req, res) => {
             parameter: "user_username,user_password,user_full_name,user_telephone"
         });
     } finally {
-        (await connection).release();
+        connect.end();
 
     }
 
