@@ -2,6 +2,8 @@ import express from "express";
 import connection from "../config/connectDB";
 import bcrypt from "bcrypt";
 import axios from "axios";
+import jwt from 'jsonwebtoken';
+
 
 const API_KEY = '281ea9d6a46f5338283836891404738de3a20097';
 
@@ -123,12 +125,21 @@ let findUser = async (req, res) => {
                 message: "Invalid password",
             });
         }
-        return res.status(200).json({
-            message: "Find user complete",
-            data: user
+        const payload = {
+            check: true,
+            authorization: 'user' // gán giá trị để phân quyền cho token này
+        }
+
+        let token = jwt.sign(payload, req.app.get('Secret'), {
+            expiresIn: 1440 // set token tồn tại trong 24 giờ
         });
+
+        return res.json({
+            message: 'Loggin successfully!',
+            token: token  // gửi token về client khi đăng nhập thành công 
+        })
     } catch (error) {
-        console.log(error.message);
+        console.log(error);
         return res.status(500).json({
             message: "Error",
             error: error.message,
