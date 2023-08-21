@@ -188,4 +188,3 @@ module.exports = {
     findUser: findUser,
     deleteUser: deleteUser
 }
-
